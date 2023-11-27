@@ -1,0 +1,51 @@
+# Load necessary library
+library(datasets)
+
+# Load Red Wine Quality dataset
+data(WineQuality.RedWine)
+wine_data <- WineQuality.RedWine
+
+# Display the first few rows of the dataset
+head(wine_data)
+
+# Function to find univariate outliers using the IQR method
+find_outliers <- function(x) {
+  iqr <- IQR(x)
+  q1 <- quantile(x)[2]
+  q3 <- quantile(x)[4]
+  lower_bound <- q1 - 1.5 * iqr
+  upper_bound <- q3 + 1.5 * iqr
+  outliers <- x[x < lower_bound | x > upper_bound]
+  return(outliers)
+}
+
+# Apply the find_outliers function to each column of the dataset
+outliers_univariate <- lapply(wine_data, find_outliers)
+outliers_df <- data.frame(variable = character(), value = numeric())
+
+# Create a data frame to store outliers
+for (i in 1:ncol(wine_data)) {
+  outliers_df <- rbind(outliers_df, data.frame(variable = rep(names(wine_data)[i], length(outliers_univariate[[i]])), value = outliers_univariate[[i]]))
+}
+
+# Print the data frame with outliers
+print(outliers_df)
+
+str(outliers_univariate)
+# Create boxplots for each variable in the dataset
+boxplot(wine_data, main = "Boxplots for Wine Data", col = "lightblue", notch = TRUE)
+
+# Annotate extreme values in each boxplot
+for (i in 1:ncol(wine_data)) {
+  text(i, quantile(wine_data[, i], 0.95), labels = names(wine_data)[i], pos = 3, col = "red")
+}
+
+# Create histograms for each variable in the dataset in a 2x1 layout
+par(mfrow = c(2, 1))
+for (i in 1:ncol(wine_data)) {
+  hist(wine_data[[i]], main = colnames(wine_data)[i], col = "lightblue", xlab = colnames(wine_data)[i], ylab = "Frequency")
+}
+par(mfrow = c(1, 1))
+
+# Create a pairwise scatterplot matrix for the variables in the dataset
+pairs(wine_data, pch = 19, col = "blue", main = "Pairwise Scatterplot Matrix")

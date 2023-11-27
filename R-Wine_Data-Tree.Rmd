@@ -1,0 +1,41 @@
+# Load the necessary library
+library(datasets)
+
+# Load the dataset
+data(WineQuality.RedWine)
+wine_data <- WineQuality.RedWine  
+
+# Display the structure of the dataset
+str(wine_data)
+
+# Randomly split the dataset into training and testing sets
+ind <- sample(2, nrow(wine_data), replace=TRUE, prob=c(0.7, 0.3))
+trainData <- wine_data[ind == 1,]
+testData <- wine_data[ind == 2,]
+
+# Load the 'party' library for conditional inference trees
+library(party)
+
+# Specify the formula for the conditional inference tree
+myFormula <- fixed.acidity ~ pH
+
+# Create a conditional inference tree using the training data
+wine_ctree <- ctree(myFormula, data=trainData)
+
+# Display a table of predicted vs. actual values for the 'fixed.acidity' variable on the training data
+table(predict(wine_ctree), trainData$fixed.acidity)
+
+# Print the details of the trained conditional inference tree
+print(wine_ctree)
+
+# Plot the conditional inference tree
+plot(wine_ctree)
+
+
+
+
+
+
+
+
+
